@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Create Staff Account — Nash Energy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-7">
+    <div class="mb-3">
+      <a href="{{ url_for('admin.list_users') }}" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Back to Users
+      </a>
+    </div>
+    <div class="form-card">
+      <h5 class="fw-bold mb-4" style="color:var(--nash-primary)">
+        <i class="bi bi-person-plus-fill me-2" style="color:var(--nash-accent)"></i>
+        Create IT Staff Account
+      </h5>
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+
+          {% for field in [form.full_name, form.employee_id, form.email, form.department, form.role] %}
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ field.label.text }} <span class="text-danger">*</span></label>
+            {{ field(class="form-control" + (" is-invalid" if field.errors else "")) }}
+            {% for error in field.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+          {% endfor %}
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ form.password.label.text }} <span class="text-danger">*</span></label>
+            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else "")) }}
+            {% for error in form.password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ form.confirm_password.label.text }} <span class="text-danger">*</span></label>
+            {{ form.confirm_password(class="form-control" + (" is-invalid" if form.confirm_password.errors else "")) }}
+            {% for error in form.confirm_password.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+
+        </div>
+        <hr class="my-4"/>
+        <div class="d-flex justify-content-end gap-2">
+          <a href="{{ url_for('admin.list_users') }}" class="btn btn-outline-secondary">Cancel</a>
+          {{ form.submit(class="btn px-4", style="background:var(--nash-primary);color:#fff;") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

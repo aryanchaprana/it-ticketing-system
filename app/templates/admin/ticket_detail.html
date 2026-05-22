@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}{{ ticket.ticket_ref }} — Admin View{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('admin.dashboard') }}" class="text-muted text-decoration-none">
+    <i class="bi bi-arrow-left"></i> Back to Dashboard
+  </a>
+</div>
+
+<div class="row g-4">
+
+  <!-- Ticket Info -->
+  <div class="col-lg-7">
+    <div class="form-card h-100">
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h5 class="fw-bold mb-1" style="color:var(--nash-primary)">{{ ticket.ticket_ref }}</h5>
+          <small class="text-muted">Submitted {{ ticket.submitted_at | datetimeformat }}</small>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="badge {{ ticket.priority.value | priority_badge }} fs-6">{{ ticket.priority.value }}</span>
+          <span class="badge {{ ticket.status.value | status_badge }} fs-6">{{ ticket.status.value }}</span>
+          {% if ticket.is_overdue %}<span class="badge bg-danger badge-overdue">OVERDUE</span>{% endif %}
+        </div>
+      </div>
+
+      <table class="table table-sm table-borderless">
+        <tr>
+          <td class="text-muted fw-semibold" width="35%">Raised By</td>
+          <td>
+            {% if ticket.created_by %}
+              <a href="{{ url_for('admin.user_tickets', user_id=ticket.created_by_id) }}">
+                {{ ticket.submitter_name }}
+              </a>
+            {% else %}
+              {{ ticket.submitter_name }}
+            {% endif %}
+          </td>
+        </tr>
+        <tr><td class="text-muted fw-semibold">Employee ID</td><td>{{ ticket.submitter_employee_id }}</td></tr>
+        <tr><td class="text-muted fw-semibold">Department</td><td>{{ ticket.submitter_department }}</td></tr>
+        <tr><td class="text-muted fw-semibold">Email</td><td><a href="mailto:{{ ticket.submitter_email }}">{{ ticket.submitter_email }}</a></td></tr>
+        <tr>
+          <td class="text-muted fw-semibold">Category</td>
+          <td>
+            {% if ticket.category %}
+              {% set icons = {'Hardware': '💻', 'Software': '🖥️', 'Network': '🌐', 'CCTV': '📷'} %}
+              {{ icons.get(ticket.category.value, '') }} {{ ticket.category.value }}
+            {% endif %}
+          </td>
+        </tr>
+        {% if ticket.asset_id %}
+        <tr><td class="text-muted fw-semibold">Asset ID</td><td><code>{{ ticket.asset_id }}</code></td></tr>
+        {% endif %}
+        {% if ticket.preferred_staff %}
+        <tr><td class="text-muted fw-semibold">Requested IT Person</td><td>{{ ticket.preferred_staff.full_name }}</td></tr>
+        {% endif %}
+        <tr><td class="text-muted fw-semibold">Assigned To</td><td>{{ ticket.assigned_to.full_name if ticket.assigned_to else '— Unassigned' }}</td></tr>
+        {% if ticket.solved_at %}
+        <tr><td class="text-muted fw-semibold">Resolved On</td><td>{{ ticket.solved_at | datetimeformat }}</td></tr>
+        <tr><td class="text-muted fw-semibold">Resolved By</td><td>{{ ticket.solved_by.full_name if ticket.solved_by else '—' }}</td></tr>
+        {% endif %}
+        {% if ticket.attachment_original_name %}
+        <tr>
+          <td class="text-muted fw-semibold">Attachment</td>
+          <td><a href="{{ url_for('public.uploaded_file', filename=ticket.attachment_path.split('/')[-1]) }}" target="_blank"><i class="bi bi-paperclip"></i> {{ ticket.attachment_original_name }}</a></td>
+        </tr>
+        {% endif %}
+      </table>
+
+      <hr/>
+      <h6 class="fw-bold">Problem Description</h6>
+      <div class="bg-light rounded p-3 text-break" style="white-space:pre-wrap;">{{ ticket.problem_description }}</div>
+
+      {% if ticket.resolution_remark %}
+      <hr/>
+      <h6 class="fw-bold text-success"><i class="bi bi-check-circle me-1"></i> Resolution Remark</h6>
+      <div class="bg-light rounded p-3 text-break" style="white-space:pre-wrap;">{{ ticket.resolution_remark }}</div>
+      {% endif %}
+
+      <!-- Timeline -->
+      <hr/>
+      <h6 class="fw-bold"><i class="bi bi-clock-history me-2"></i>Ticket Timeline</h6>
+      <ul class="list-unstyled ms-2">
+        <li class="mb-2">
+          <i class="bi bi-check-circle-fill text-primary me-2"></i>
+          <strong>Submitted</strong>
+          <span class="text-muted ms-2 small">{{ ticket.submitted_at | datetimeformat }}</span>
+        </li>
+        <li class="mb-2">
+          {% if ticket.assigned_at %}
+            <i class="bi bi-check-circle-fill text-info me-2"></i>
+            <strong>Assigned</strong>
+            <span class="text-muted ms-2 small">{{ ticket.assigned_at | datetimeformat }}</span>
+            {% if ticket.assigned_to %}<span class="badge bg-light text-dark ms-1">{{ ticket.assigned_to.full_name }}</span>{% endif %}
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Not yet assigned</span>
+          {% endif %}
+        </li>
+        <li class="mb-2">
+          {% if ticket.in_progress_at %}
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+            <strong>In Progress</strong>
+            <span class="text-muted ms-2 small">{{ ticket.in_progress_at | datetimeformat }}</span>
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Not yet started</span>
+          {% endif %}
+        </li>
+        <li class="mb-2">
+          {% if ticket.solved_at %}
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <strong>Solved</strong>
+            <span class="text-muted ms-2 small">{{ ticket.solved_at | datetimeformat }}</span>
+            {% if ticket.solved_by %}<span class="badge bg-light text-dark ms-1">{{ ticket.solved_by.full_name }}</span>{% endif %}
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Not yet resolved</span>
+          {% endif %}
+        </li>
+      </ul>
+
+    </div>
+  </div>
+
+  <!-- Admin Actions -->
+  <div class="col-lg-5">
+    {% if ticket.status.value not in ['Solved', 'Closed'] %}
+
+    {# Assign form — only shown if ticket is not yet In Progress #}
+    {% if ticket.status.value in ['Open', 'Assigned'] %}
+    <div class="form-card mb-3">
+      <h6 class="fw-bold mb-3" style="color:var(--nash-primary)"><i class="bi bi-person-check me-2"></i>Assign to Staff</h6>
+      <form method="POST" action="{{ url_for('admin.assign_ticket', ticket_id=ticket.id) }}">
+        {{ assign_form.hidden_tag() }}
+        <div class="mb-2">{{ assign_form.assigned_to(class="form-select form-select-sm") }}</div>
+        {{ assign_form.submit(class="btn btn-sm btn-primary w-100") }}
+      </form>
+    </div>
+    {% else %}
+    <div class="alert alert-warning py-2 small mb-3">
+      <i class="bi bi-lock-fill me-2"></i>
+      Assignment is locked — ticket is currently <strong>{{ ticket.status.value }}</strong>.
+    </div>
+    {% endif %}
+
+    <div class="form-card mb-3">
+      <h6 class="fw-bold mb-3" style="color:var(--nash-primary)"><i class="bi bi-flag me-2"></i>Change Priority</h6>
+      <form method="POST" action="{{ url_for('admin.change_priority', ticket_id=ticket.id) }}">
+        {{ priority_form.hidden_tag() }}
+        <div class="mb-2">{{ priority_form.priority(class="form-select form-select-sm") }}</div>
+        {{ priority_form.submit(class="btn btn-sm btn-warning w-100") }}
+      </form>
+    </div>
+
+    <div class="form-card border border-success">
+      <h6 class="fw-bold mb-3 text-success"><i class="bi bi-check2-circle me-2"></i>Resolve Ticket (Admin)</h6>
+      <form method="POST" action="{{ url_for('admin.solve_ticket', ticket_id=ticket.id) }}">
+        {{ solve_form.hidden_tag() }}
+        <div class="mb-2">
+          {{ solve_form.resolution_remark(class="form-control form-control-sm" + (" is-invalid" if solve_form.resolution_remark.errors else ""), rows=4, placeholder="Describe how the issue was resolved...") }}
+          {% for error in solve_form.resolution_remark.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+        </div>
+        {{ solve_form.submit(class="btn btn-sm btn-success w-100") }}
+      </form>
+    </div>
+
+    {% else %}
+    <div class="alert alert-success text-center">
+      <i class="bi bi-check-circle-fill fs-4 d-block mb-1"></i>
+      This ticket has been <strong>{{ ticket.status.value }}</strong>.
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

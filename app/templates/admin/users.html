@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}User Accounts — Nash Energy{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <h5 class="fw-bold mb-0" style="color:var(--nash-primary)">
+    <i class="bi bi-people-fill me-2"></i>User Accounts
+  </h5>
+  <a href="{{ url_for('admin.create_user') }}" class="btn btn-sm"
+     style="background:var(--nash-accent);color:#fff;">
+    <i class="bi bi-person-plus me-1"></i> New Account
+  </a>
+</div>
+
+<!-- Role Filter Tabs -->
+<ul class="nav nav-tabs mb-3">
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if not role_filter }}"
+       href="{{ url_for('admin.list_users') }}">
+      All Users
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if role_filter == 'employee' }}"
+       href="{{ url_for('admin.list_users', role='employee') }}">
+      <i class="bi bi-person me-1"></i> Employees
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if role_filter == 'staff' }}"
+       href="{{ url_for('admin.list_users', role='staff') }}">
+      <i class="bi bi-tools me-1"></i> IT Staff
+    </a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{ 'active' if role_filter == 'admin' }}"
+       href="{{ url_for('admin.list_users', role='admin') }}">
+      <i class="bi bi-shield-fill me-1"></i> Admins
+    </a>
+  </li>
+</ul>
+
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table ticket-table mb-0">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Employee ID</th>
+          <th>Email</th>
+          <th>Department</th>
+          <th>Role</th>
+          <th>Status</th>
+          <th>Pwd Status</th>
+          <th>Created</th>
+          <th class="text-center">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td class="fw-semibold">{{ user.full_name }}</td>
+          <td>{{ user.employee_id }}</td>
+          <td class="small">{{ user.email }}</td>
+          <td class="small">{{ user.department or '—' }}</td>
+          <td>
+            {% if user.is_admin %}
+              <span class="badge bg-danger">ADMIN</span>
+            {% elif user.is_staff %}
+              <span class="badge bg-primary">IT STAFF</span>
+            {% else %}
+              <span class="badge bg-secondary">EMPLOYEE</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge {{ 'bg-success' if user.is_active else 'bg-secondary' }}">
+              {{ 'Active' if user.is_active else 'Inactive' }}
+            </span>
+          </td>
+          <td>
+            {% if user.must_change_password %}
+              <span class="badge bg-warning text-dark">
+                <i class="bi bi-exclamation-triangle me-1"></i>Temporary
+              </span>
+            {% else %}
+              <span class="badge bg-success">
+                <i class="bi bi-check me-1"></i>Set
+              </span>
+            {% endif %}
+          </td>
+          <td class="small text-muted">
+            {{ user.created_at | datetimeformat('%d %b %Y') }}
+          </td>
+          <td class="text-center">
+            <div class="d-flex gap-1 justify-content-center">
+
+              <!-- View tickets raised by this user -->
+              <a href="{{ url_for('admin.user_tickets', user_id=user.id) }}"
+                 class="btn btn-sm btn-outline-primary"
+                 title="View tickets">
+                <i class="bi bi-ticket-detailed"></i>
+              </a>
+
+              <!-- Edit user -->
+              <a href="{{ url_for('admin.edit_user', user_id=user.id) }}"
+                 class="btn btn-sm btn-outline-secondary"
+                 title="Edit user">
+                <i class="bi bi-pencil"></i>
+              </a>
+
+              <!-- Reset password -->
+              <a href="{{ url_for('admin.reset_user_password', user_id=user.id) }}"
+                 class="btn btn-sm btn-outline-warning"
+                 title="Reset password">
+                <i class="bi bi-key"></i>
+              </a>
+
+              <!-- Activate / Deactivate -->
+              {% if user.id != current_user.id %}
+              <form method="POST"
+                    action="{{ url_for('admin.toggle_user', user_id=user.id) }}"
+                    onsubmit="return confirm('Toggle account for {{ user.full_name }}?')">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit"
+                        class="btn btn-sm {{ 'btn-outline-danger' if user.is_active else 'btn-outline-success' }}"
+                        title="{{ 'Deactivate' if user.is_active else 'Activate' }}">
+                  <i class="bi {{ 'bi-person-x' if user.is_active else 'bi-person-check' }}"></i>
+                </button>
+              </form>
+              {% else %}
+              <span class="btn btn-sm btn-outline-secondary disabled">You</span>
+              {% endif %}
+
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-center text-muted py-4">No users found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

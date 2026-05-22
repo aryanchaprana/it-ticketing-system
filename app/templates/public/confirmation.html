@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Ticket Submitted — Nash Energy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-md-7 col-lg-5 text-center">
+    <div class="form-card">
+
+      <div class="mb-3">
+        <i class="bi bi-check-circle-fill display-3 text-success"></i>
+      </div>
+
+      <h3 class="fw-bold" style="color:var(--nash-primary)">Ticket Submitted!</h3>
+      <p class="text-muted">Your IT support request has been received. Please save your reference number below.</p>
+
+      <div class="alert alert-primary fs-4 fw-bold my-4">{{ ticket.ticket_ref }}</div>
+
+      <table class="table table-sm text-start">
+        <tr>
+          <td class="text-muted">Name</td>
+          <td class="fw-semibold">{{ ticket.submitter_name }}</td>
+        </tr>
+        <tr>
+          <td class="text-muted">Department</td>
+          <td>{{ ticket.submitter_department }}</td>
+        </tr>
+        <tr>
+          <td class="text-muted">Priority</td>
+          <td>
+            <span class="badge {{ ticket.priority.value | priority_badge }}">{{ ticket.priority.value }}</span>
+          </td>
+        </tr>
+        <tr>
+          <td class="text-muted">Submitted</td>
+          <td>{{ ticket.submitted_at | datetimeformat }}</td>
+        </tr>
+      </table>
+
+      <p class="text-muted small">
+        <i class="bi bi-envelope"></i>
+        A confirmation will be sent to <strong>{{ ticket.submitter_email }}</strong> once your issue is resolved.
+      </p>
+
+      <a href="{{ url_for('public.submit_ticket') }}" class="btn btn-outline-primary mt-2">
+        <i class="bi bi-plus-circle me-1"></i> Raise Another Ticket
+      </a>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

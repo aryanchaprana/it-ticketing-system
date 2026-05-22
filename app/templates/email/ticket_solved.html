@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }
+    .container { max-width:600px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+    .header { background:#1a3c5e; color:#fff; padding:28px 32px; }
+    .header h2 { margin:0; font-size:1.3rem; }
+    .accent { color:#e87722; font-weight:700; }
+    .body { padding:32px; }
+    .ref-box { background:#f0f4f8; border-left:4px solid #e87722; padding:12px 16px; border-radius:4px; margin:16px 0; }
+    .ref-box .ref { font-size:1.4rem; font-weight:700; color:#1a3c5e; }
+    table { width:100%; border-collapse:collapse; margin:16px 0; }
+    td { padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:0.9rem; }
+    td:first-child { color:#6c757d; width:40%; }
+    td:last-child { font-weight:600; }
+    .remark-box { background:#f8fff8; border:1px solid #c3e6cb; border-radius:8px; padding:16px; margin:16px 0; }
+    .footer { background:#f4f6f9; padding:20px 32px; text-align:center; font-size:0.8rem; color:#6c757d; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h2>⚡ Nash <span class="accent">Energy</span> IT Support</h2>
+    <p style="margin:4px 0 0; opacity:0.8; font-size:0.9rem;">Your IT Support Ticket Has Been Resolved</p>
+  </div>
+
+  <div class="body">
+    <p>Dear <strong>{{ ticket.submitter_name }}</strong>,</p>
+    <p>Great news — your IT support request has been resolved by our team. Here are the details:</p>
+
+    <div class="ref-box">
+      <div style="font-size:0.8rem;color:#6c757d;">Ticket Reference</div>
+      <div class="ref">{{ ticket.ticket_ref }}</div>
+    </div>
+
+    <table>
+      <tr><td>Priority</td><td>{{ ticket.priority.value }}</td></tr>
+      <tr><td>Submitted</td><td>{{ ticket.submitted_at.strftime('%d %b %Y, %H:%M') }} UTC</td></tr>
+      <tr>
+        <td>Resolved On</td>
+        <td>{{ ticket.solved_at.strftime('%d %b %Y, %H:%M') ~ ' UTC' if ticket.solved_at else '—' }}</td>
+      </tr>
+      <tr><td>Resolved By</td><td>{{ ticket.solved_by.full_name if ticket.solved_by else 'IT Team' }}</td></tr>
+    </table>
+
+    <p><strong>Your Issue:</strong></p>
+    <div class="remark-box" style="background:#f8f9fa;border-color:#dee2e6;">{{ ticket.problem_description }}</div>
+
+    <p><strong>Resolution:</strong></p>
+    <div class="remark-box">{{ ticket.resolution_remark }}</div>
+
+    <p style="color:#6c757d; font-size:0.9rem;">
+      If your issue persists or you experience further problems, please raise a new ticket through the IT Support portal.
+    </p>
+  </div>
+
+  <div class="footer">
+    Nash Energy IT Support Team &nbsp;·&nbsp; Internal Portal<br/>
+    This is an automated message — please do not reply to this email.
+  </div>
+
+</div>
+</body>
+</html>

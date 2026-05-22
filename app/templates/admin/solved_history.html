@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Solved Tickets History — Admin{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:var(--nash-primary)">
+      <i class="bi bi-clock-history me-2"></i>Solved Tickets History
+    </h4>
+    <small class="text-muted">All resolved tickets across all IT staff</small>
+  </div>
+  <a href="{{ url_for('admin.dashboard') }}" class="text-muted text-decoration-none">
+    <i class="bi bi-arrow-left"></i> Back to Dashboard
+  </a>
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-4 p-3">
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-sm-6 col-md-3">
+      <label class="form-label small fw-semibold mb-1">IT Staff Member</label>
+      <select name="staff_id" class="form-select form-select-sm">
+        <option value="">All Staff</option>
+        {% for s in staff_members %}
+          <option value="{{ s.id }}" {{ 'selected' if staff_filter == s.id|string }}>
+            {{ s.full_name }} ({{ s.employee_id }})
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <label class="form-label small fw-semibold mb-1">From Date</label>
+      <input type="date" name="date_from" class="form-control form-control-sm"
+             value="{{ date_from }}"/>
+    </div>
+    <div class="col-sm-6 col-md-3">
+      <label class="form-label small fw-semibold mb-1">To Date</label>
+      <input type="date" name="date_to" class="form-control form-control-sm"
+             value="{{ date_to }}"/>
+    </div>
+    <div class="col-sm-6 col-md-3 d-flex gap-2">
+      <button type="submit" class="btn btn-sm btn-primary flex-grow-1">
+        <i class="bi bi-funnel me-1"></i> Filter
+      </button>
+      <a href="{{ url_for('admin.solved_history') }}" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-x-lg"></i>
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Summary + Export -->
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <div class="text-muted small">
+    Showing <strong>{{ tickets.total }}</strong> resolved ticket(s)
+    {% if date_from or date_to %}
+      <span class="badge bg-light text-dark ms-2">
+        {{ date_from or '...' }} → {{ date_to or 'today' }}
+      </span>
+    {% endif %}
+  </div>
+  <a href="{{ url_for('admin.export_solved_history', staff_id=staff_filter, date_from=date_from, date_to=date_to) }}"
+     class="btn btn-sm btn-success">
+    <i class="bi bi-file-earmark-excel me-1"></i> Export to Excel
+  </a>
+</div>
+
+<!-- Table -->
+<div class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table ticket-table mb-0">
+      <thead>
+        <tr>
+          <th>Ref</th>
+          <th>Submitted By</th>
+          <th>Category</th>
+          <th>Asset ID</th>
+          <th>Priority</th>
+          <th>Resolved By</th>
+          <th>Resolved On</th>
+          <th class="text-center">View</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for ticket in tickets.items %}
+        <tr>
+          <td class="fw-semibold text-primary">{{ ticket.ticket_ref }}</td>
+          <td>
+            <div class="fw-semibold">{{ ticket.submitter_name }}</div>
+            <small class="text-muted">{{ ticket.submitter_department }}</small>
+          </td>
+          <td class="small">
+            {% if ticket.category %}
+              {% set icons = {'Hardware': '💻', 'Software': '🖥️', 'Network': '🌐', 'CCTV': '📷'} %}
+              {{ icons.get(ticket.category.value, '') }} {{ ticket.category.value }}
+            {% endif %}
+          </td>
+          <td class="small"><code>{{ ticket.asset_id or '—' }}</code></td>
+          <td><span class="badge {{ ticket.priority.value | priority_badge }}">{{ ticket.priority.value }}</span></td>
+          <td class="small fw-semibold">{{ ticket.solved_by.full_name if ticket.solved_by else '—' }}</td>
+          <td class="small text-muted">{{ ticket.solved_at | datetimeformat if ticket.solved_at else '—' }}</td>
+          <td class="text-center">
+            <a href="{{ url_for('admin.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-5">
+            <i class="bi bi-inbox display-6 d-block mb-2"></i>
+            No solved tickets found for the selected filters.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if tickets.pages > 1 %}
+<nav class="mt-3 d-flex justify-content-center">
+  <ul class="pagination pagination-sm">
+    <li class="page-item {{ 'disabled' if not tickets.has_prev }}">
+      <a class="page-link" href="{{ url_for('admin.solved_history', page=tickets.prev_num, staff_id=staff_filter, date_from=date_from, date_to=date_to) }}">&laquo;</a>
+    </li>
+    {% for p in tickets.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == tickets.page }}">
+          <a class="page-link" href="{{ url_for('admin.solved_history', page=p, staff_id=staff_filter, date_from=date_from, date_to=date_to) }}">{{ p }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+    <li class="page-item {{ 'disabled' if not tickets.has_next }}">
+      <a class="page-link" href="{{ url_for('admin.solved_history', page=tickets.next_num, staff_id=staff_filter, date_from=date_from, date_to=date_to) }}">&raquo;</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

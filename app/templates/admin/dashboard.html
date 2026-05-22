@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard — Nash Energy IT{% endblock %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+  <div>
+    <h4 class="fw-bold mb-0" style="color:var(--nash-primary)">
+      <i class="bi bi-speedometer2 me-2"></i>Admin Dashboard
+    </h4>
+    <small class="text-muted">Welcome, {{ current_user.full_name }} &nbsp;·&nbsp; {{ now | datetimeformat }}</small>
+  </div>
+  <div class="d-flex gap-2">
+    <a href="{{ url_for('admin.solved_history') }}" class="btn btn-sm btn-outline-primary">
+      <i class="bi bi-clock-history me-1"></i> Solved History
+    </a>
+    <a href="{{ url_for('admin.create_user') }}" class="btn btn-sm" style="background:var(--nash-accent);color:#fff;">
+      <i class="bi bi-person-plus-fill me-1"></i> New Staff Account
+    </a>
+  </div>
+</div>
+
+<!-- Status Stats Row -->
+<div class="row g-3 mb-3">
+  {% set stat_cards = [
+    ('Total Tickets',  stats.total,       'bi-ticket-detailed',     'var(--nash-primary)'),
+    ('Open',           stats.open,        'bi-envelope-open',       '#0d6efd'),
+    ('Assigned',       stats.assigned,    'bi-person-check',        '#0dcaf0'),
+    ('In Progress',    stats.in_progress, 'bi-arrow-repeat',        '#ffc107'),
+    ('Solved',         stats.solved,      'bi-check-circle',        '#198754'),
+    ('High Priority',  stats.high,        'bi-exclamation-octagon', '#dc3545'),
+  ] %}
+  {% for label, count, icon, color in stat_cards %}
+  <div class="col-6 col-md-4 col-xl-2">
+    <div class="card stat-card p-3 h-100">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-box" style="background:{{ color }}"><i class="bi {{ icon }}"></i></div>
+        <div>
+          <div class="fs-4 fw-bold">{{ count }}</div>
+          <div class="text-muted small">{{ label }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Category Breakdown Row -->
+<div class="row g-3 mb-4">
+  {% set cat_cards = [
+    ('💻 Hardware', category_stats.Hardware, '#6f42c1'),
+    ('🖥️ Software', category_stats.Software, '#0d6efd'),
+    ('🌐 Network',  category_stats.Network,  '#0dcaf0'),
+    ('📷 CCTV',     category_stats.CCTV,     '#fd7e14'),
+  ] %}
+  {% for label, count, color in cat_cards %}
+  <div class="col-6 col-md-3">
+    <div class="card stat-card p-3 h-100">
+      <div class="d-flex align-items-center gap-3">
+        <div class="icon-box" style="background:{{ color }}; font-size:1.2rem;">
+          {{ label.split(' ')[0] }}
+        </div>
+        <div>
+          <div class="fs-4 fw-bold">{{ count }}</div>
+          <div class="text-muted small">{{ label.split(' ')[1] }} Tickets</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Filters -->
+<div class="card border-0 shadow-sm mb-3 p-3">
+  <form method="GET" class="row g-2 align-items-end">
+    <div class="col-sm-3">
+      <label class="form-label small fw-semibold mb-1">Status</label>
+      <select name="status" class="form-select form-select-sm">
+        <option value="">All Statuses</option>
+        {% for s in TicketStatus %}
+          <option value="{{ s.value }}" {{ 'selected' if status_filter == s.value }}>{{ s.value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <label class="form-label small fw-semibold mb-1">Priority</label>
+      <select name="priority" class="form-select form-select-sm">
+        <option value="">All Priorities</option>
+        {% for p in TicketPriority %}
+          <option value="{{ p.value }}" {{ 'selected' if priority_filter == p.value }}>{{ p.value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <label class="form-label small fw-semibold mb-1">Category</label>
+      <select name="category" class="form-select form-select-sm">
+        <option value="">All Categories</option>
+        {% for c in TicketCategory %}
+          <option value="{{ c.value }}" {{ 'selected' if category_filter == c.value }}>{{ c.value }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-sm-2">
+      <button type="submit" class="btn btn-sm btn-primary w-100">
+        <i class="bi bi-funnel me-1"></i> Filter
+      </button>
+    </div>
+    <div class="col-sm-1">
+      <a href="{{ url_for('admin.dashboard') }}" class="btn btn-sm btn-outline-secondary w-100">
+        <i class="bi bi-x-lg"></i>
+      </a>
+    </div>
+  </form>
+</div>
+
+<!-- Tickets Table -->
+<div class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table ticket-table table-row-hover mb-0">
+        <thead>
+          <tr>
+            <th>Ref</th>
+            <th>Submitted</th>
+            <th>Raised By</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Status</th>
+            <th>Assigned To</th>
+            <th class="text-center">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for ticket in tickets.items %}
+          <tr onclick="window.location='{{ url_for('admin.ticket_detail', ticket_id=ticket.id) }}'" style="cursor:pointer">
+            <td class="fw-semibold text-primary">{{ ticket.ticket_ref }}</td>
+            <td class="small text-muted">{{ ticket.submitted_at | datetimeformat }}</td>
+            <td>
+              {% if ticket.created_by %}
+                <a href="{{ url_for('admin.user_tickets', user_id=ticket.created_by_id) }}"
+                   class="fw-semibold text-decoration-none"
+                   onclick="event.stopPropagation()">
+                  {{ ticket.submitter_name }}
+                </a>
+              {% else %}
+                <div class="fw-semibold">{{ ticket.submitter_name }}</div>
+              {% endif %}
+              <small class="text-muted">{{ ticket.submitter_department }}</small>
+            </td>
+            <td class="small">
+              {% if ticket.category %}
+                {% set icons = {'Hardware': '💻', 'Software': '🖥️', 'Network': '🌐', 'CCTV': '📷'} %}
+                {{ icons.get(ticket.category.value, '') }} {{ ticket.category.value }}
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge {{ ticket.priority.value | priority_badge }}">{{ ticket.priority.value }}</span>
+              {% if ticket.is_overdue %}<span class="badge bg-danger badge-overdue ms-1">OVERDUE</span>{% endif %}
+            </td>
+            <td><span class="badge {{ ticket.status.value | status_badge }}">{{ ticket.status.value }}</span></td>
+            <td class="small">{{ ticket.assigned_to.full_name if ticket.assigned_to else '—' }}</td>
+            <td class="text-center" onclick="event.stopPropagation()">
+              <a href="{{ url_for('admin.ticket_detail', ticket_id=ticket.id) }}" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-eye"></i>
+              </a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-5">
+              <i class="bi bi-inbox display-6 d-block mb-2"></i>No tickets found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+{% if tickets.pages > 1 %}
+<nav class="mt-3 d-flex justify-content-center">
+  <ul class="pagination pagination-sm">
+    <li class="page-item {{ 'disabled' if not tickets.has_prev }}">
+      <a class="page-link" href="{{ url_for('admin.dashboard', page=tickets.prev_num, status=status_filter, priority=priority_filter, category=category_filter) }}">&laquo;</a>
+    </li>
+    {% for p in tickets.iter_pages(left_edge=2, right_edge=2, left_current=2, right_current=2) %}
+      {% if p %}
+        <li class="page-item {{ 'active' if p == tickets.page }}">
+          <a class="page-link" href="{{ url_for('admin.dashboard', page=p, status=status_filter, priority=priority_filter, category=category_filter) }}">{{ p }}</a>
+        </li>
+      {% else %}
+        <li class="page-item disabled"><span class="page-link">…</span></li>
+      {% endif %}
+    {% endfor %}
+    <li class="page-item {{ 'disabled' if not tickets.has_next }}">
+      <a class="page-link" href="{{ url_for('admin.dashboard', page=tickets.next_num, status=status_filter, priority=priority_filter, category=category_filter) }}">&raquo;</a>
+    </li>
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Raise an IT Ticket — Nash Energy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-8 col-xl-7">
+
+    <div class="mb-4">
+      <a href="{{ url_for('employee.dashboard') }}" class="text-muted text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Back to My Tickets
+      </a>
+    </div>
+
+    <div class="form-card">
+      <h3 class="fw-bold mb-1" style="color:var(--nash-primary)">
+        <i class="bi bi-plus-circle me-2" style="color:var(--nash-accent)"></i>
+        Raise an IT Support Ticket
+      </h3>
+      <p class="text-muted small mb-4">
+        Fields marked <span class="text-danger">*</span> are required.
+      </p>
+
+      <!-- Auto-filled account info — read only -->
+      <div class="alert alert-light border mb-4">
+        <div class="row g-2">
+          <div class="col-md-6">
+            <small class="text-muted d-block">Submitting as</small>
+            <strong>{{ current_user.full_name }}</strong>
+          </div>
+          <div class="col-md-6">
+            <small class="text-muted d-block">Employee ID</small>
+            <strong>{{ current_user.employee_id }}</strong>
+          </div>
+          <div class="col-md-6">
+            <small class="text-muted d-block">Department</small>
+            <strong>{{ current_user.department or 'Not specified' }}</strong>
+          </div>
+          <div class="col-md-6">
+            <small class="text-muted d-block">Email</small>
+            <strong>{{ current_user.email }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" novalidate>
+        {{ form.hidden_tag() }}
+        <div class="row g-3">
+
+          <!-- Priority -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ form.priority.label.text }} <span class="text-danger">*</span></label>
+            {{ form.priority(class="form-select" + (" is-invalid" if form.priority.errors else "")) }}
+            {% for error in form.priority.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">{{ form.category.label.text }} <span class="text-danger">*</span></label>
+            {{ form.category(class="form-select" + (" is-invalid" if form.category.errors else ""), id="categorySelect") }}
+            {% for error in form.category.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+
+                    <!-- Sub-Category (Application only) -->
+          <div class="col-md-6" id="subCategoryField" style="display:none;">
+            <label class="form-label fw-semibold">{{ form.sub_category.label.text }} <span class="text-danger">*</span></label>
+            {{ form.sub_category(class="form-select" + (" is-invalid" if form.sub_category.errors else ""), id="subCategorySelect") }}
+            {% for error in form.sub_category.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+          </div>
+
+
+          <!-- Asset ID -->
+          <div class="col-md-6" id="assetIdField">
+            <label class="form-label fw-semibold">
+              {{ form.asset_id.label.text }}
+              <span class="text-danger" id="assetIdStar">*</span>
+            </label>
+            {{ form.asset_id(class="form-control" + (" is-invalid" if form.asset_id.errors else ""), placeholder="e.g. AST-00123") }}
+            {% for error in form.asset_id.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            <div class="form-text">Asset tag found on the device/equipment.</div>
+          </div>
+
+          <!-- Date & Time -->
+          <div class="col-md-6">
+            <label class="form-label fw-semibold">Date & Time</label>
+            <input type="text" class="form-control bg-light" value="{{ now.strftime('%d %b %Y, %H:%M') }} UTC" readonly/>
+            <div class="form-text">Auto-recorded at submission.</div>
+          </div>
+
+          <!-- Problem Description -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">{{ form.problem_description.label.text }} <span class="text-danger">*</span></label>
+            {{ form.problem_description(class="form-control" + (" is-invalid" if form.problem_description.errors else ""), rows=5, placeholder="Describe the issue in detail...") }}
+            {% for error in form.problem_description.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            <div class="form-text">Minimum 20 characters.</div>
+          </div>
+
+          <!-- Attachment -->
+          <div class="col-12">
+            <label class="form-label fw-semibold">{{ form.attachment.label.text }}</label>
+            {{ form.attachment(class="form-control" + (" is-invalid" if form.attachment.errors else "")) }}
+            {% for error in form.attachment.errors %}<div class="invalid-feedback">{{ error }}</div>{% endfor %}
+            <div class="form-text">Allowed: PNG, JPG, GIF, PDF, TXT, LOG. Max: 5MB.</div>
+          </div>
+
+        </div>
+
+        <hr class="my-4"/>
+        <div class="d-flex justify-content-between align-items-center">
+          <a href="{{ url_for('employee.dashboard') }}" class="btn btn-outline-secondary">
+            <i class="bi bi-x-lg me-1"></i> Cancel
+          </a>
+          {{ form.submit(class="btn btn-lg px-5", style="background:var(--nash-accent);border:none;color:#fff;") }}
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const categorySelect    = document.getElementById('categorySelect');
+  const assetIdStar       = document.getElementById('assetIdStar');
+  const assetIdInput      = document.querySelector('#assetIdField input');
+  const subCategoryField  = document.getElementById('subCategoryField');
+  const subCategorySelect = document.getElementById('subCategorySelect');
+
+  function toggleFields() {
+    // Asset ID — optional only for Network
+    if (categorySelect.value === 'Network') {
+      assetIdStar.style.display = 'none';
+      assetIdInput.placeholder  = 'Optional for Network category';
+    } else {
+      assetIdStar.style.display = 'inline';
+      assetIdInput.placeholder  = 'e.g. AST-00123 (Required)';
+    }
+
+    // Sub-category — visible only for Application
+    if (categorySelect.value === 'Application') {
+      subCategoryField.style.display = '';
+    } else {
+      subCategoryField.style.display = 'none';
+      subCategorySelect.value = '';
+    }
+  }
+
+  categorySelect.addEventListener('change', toggleFields);
+  toggleFields();
+</script>
+{% endblock %}

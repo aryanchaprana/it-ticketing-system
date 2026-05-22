@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block title %}{{ ticket.ticket_ref }} — My Ticket{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+  <a href="{{ url_for('employee.dashboard') }}" class="text-muted text-decoration-none">
+    <i class="bi bi-arrow-left"></i> Back to My Tickets
+  </a>
+</div>
+
+<div class="row justify-content-center">
+  <div class="col-lg-8">
+    <div class="form-card">
+
+      <div class="d-flex justify-content-between align-items-start mb-3">
+        <div>
+          <h5 class="fw-bold mb-1" style="color:var(--nash-primary)">{{ ticket.ticket_ref }}</h5>
+          <small class="text-muted">Submitted {{ ticket.submitted_at | datetimeformat }}</small>
+        </div>
+        <div class="d-flex gap-2">
+          <span class="badge {{ ticket.priority.value | priority_badge }}">{{ ticket.priority.value }}</span>
+          <span class="badge {{ ticket.status.value | status_badge }}">{{ ticket.status.value }}</span>
+        </div>
+      </div>
+
+      <table class="table table-sm table-borderless">
+        <tr>
+          <td class="text-muted fw-semibold" width="35%">Category</td>
+          <td>
+            {% if ticket.category %}
+              {% set icons = {'Hardware': '💻', 'Software': '🖥️', 'Network': '🌐', 'CCTV': '📷'} %}
+              {{ icons.get(ticket.category.value, '') }} {{ ticket.category.value }}
+            {% endif %}
+          </td>
+        </tr>
+        {% if ticket.asset_id %}
+        <tr><td class="text-muted fw-semibold">Asset ID</td><td><code>{{ ticket.asset_id }}</code></td></tr>
+        {% endif %}
+        <tr>
+          <td class="text-muted fw-semibold">Assigned To</td>
+          <td>{{ ticket.assigned_to.full_name if ticket.assigned_to else '— Not yet assigned' }}</td>
+        </tr>
+        {% if ticket.attachment_original_name %}
+        <tr>
+          <td class="text-muted fw-semibold">Attachment</td>
+          <td>
+            <a href="{{ url_for('public.uploaded_file', filename=ticket.attachment_path.split('/')[-1]) }}" target="_blank">
+              <i class="bi bi-paperclip"></i> {{ ticket.attachment_original_name }}
+            </a>
+          </td>
+        </tr>
+        {% endif %}
+      </table>
+
+      <hr/>
+      <h6 class="fw-bold">Your Problem Description</h6>
+      <div class="bg-light rounded p-3" style="white-space:pre-wrap;">{{ ticket.problem_description }}</div>
+
+      {% if ticket.estimated_resolution_time and ticket.status.value in ['In Progress', 'Assigned'] %}
+      <hr/>
+      <div class="alert alert-info mb-0">
+        <i class="bi bi-clock-fill me-2"></i>
+        <strong>Estimated time to resolve:</strong> {{ ticket.estimated_resolution_time }}
+        <div class="small text-muted mt-1">This is the IT team's estimate — actual time may vary.</div>
+      </div>
+      {% endif %}
+
+      {% if ticket.resolution_remark %}
+      <hr/>
+      <h6 class="fw-bold text-success">
+        <i class="bi bi-check-circle me-1"></i> How It Was Resolved
+      </h6>
+      <div class="bg-light rounded p-3" style="white-space:pre-wrap;">{{ ticket.resolution_remark }}</div>
+      {% endif %}
+
+      <!-- Timeline -->
+      <hr/>
+      <h6 class="fw-bold"><i class="bi bi-clock-history me-2"></i>Ticket Progress</h6>
+      <ul class="list-unstyled ms-2">
+        <li class="mb-2">
+          <i class="bi bi-check-circle-fill text-primary me-2"></i>
+          <strong>Submitted</strong>
+          <span class="text-muted ms-2 small">{{ ticket.submitted_at | datetimeformat }}</span>
+        </li>
+        <li class="mb-2">
+          {% if ticket.assigned_at %}
+            <i class="bi bi-check-circle-fill text-info me-2"></i>
+            <strong>Assigned to IT</strong>
+            <span class="text-muted ms-2 small">{{ ticket.assigned_at | datetimeformat }}</span>
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Waiting to be assigned</span>
+          {% endif %}
+        </li>
+        <li class="mb-2">
+          {% if ticket.in_progress_at %}
+            <i class="bi bi-check-circle-fill text-warning me-2"></i>
+            <strong>Being worked on</strong>
+            <span class="text-muted ms-2 small">{{ ticket.in_progress_at | datetimeformat }}</span>
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Work not yet started</span>
+          {% endif %}
+        </li>
+        <li class="mb-2">
+          {% if ticket.solved_at %}
+            <i class="bi bi-check-circle-fill text-success me-2"></i>
+            <strong>Resolved</strong>
+            <span class="text-muted ms-2 small">{{ ticket.solved_at | datetimeformat }}</span>
+          {% else %}
+            <i class="bi bi-circle text-secondary me-2"></i>
+            <span class="text-muted">Not yet resolved</span>
+          {% endif %}
+        </li>
+      </ul>
+
+    </div>
+  </div>
+</div>
+{% endblock %}

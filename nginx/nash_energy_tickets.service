@@ -1,0 +1,31 @@
+[Unit]
+Description=Nash Energy IT Ticketing System (Gunicorn)
+After=network.target postgresql.service
+Requires=postgresql.service
+
+[Service]
+User=nash_tickets
+Group=nash_tickets
+WorkingDirectory=/var/www/nash_energy_tickets
+EnvironmentFile=/var/www/nash_energy_tickets/.env
+
+ExecStart=/var/www/nash_energy_tickets/venv/bin/gunicorn \
+          --config /var/www/nash_energy_tickets/gunicorn.conf.py \
+          wsgi:app
+
+Restart=always
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=3
+
+StandardOutput=append:/var/www/nash_energy_tickets/logs/systemd.log
+StandardError=append:/var/www/nash_energy_tickets/logs/systemd_error.log
+
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=full
+ReadWritePaths=/var/www/nash_energy_tickets/app/static/uploads
+ReadWritePaths=/var/www/nash_energy_tickets/logs
+
+[Install]
+WantedBy=multi-user.target

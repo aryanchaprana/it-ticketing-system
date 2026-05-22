@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Login — Nash Energy{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+  <div class="col-sm-10 col-md-6 col-lg-4">
+    <div class="form-card">
+
+      <div class="text-center mb-4">
+        <i class="bi bi-shield-lock-fill display-5" style="color:var(--nash-primary)"></i>
+        <h4 class="fw-bold mt-2" style="color:var(--nash-primary)">
+          Nash Energy Portal Login
+        </h4>
+        <p class="text-muted small">
+          Login with your company account credentials.
+        </p>
+      </div>
+
+      <form method="POST" novalidate>
+        {{ form.hidden_tag() }}
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ form.email.label.text }}</label>
+          {{ form.email(class="form-control" + (" is-invalid" if form.email.errors else ""),
+                        placeholder="you@nashenergy.com",
+                        autofocus=true) }}
+          {% for error in form.email.errors %}
+            <div class="invalid-feedback">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-semibold">{{ form.password.label.text }}</label>
+          <div class="input-group">
+            {{ form.password(class="form-control" + (" is-invalid" if form.password.errors else ""),
+                             placeholder="••••••••",
+                             id="passwordInput") }}
+            <button class="btn btn-outline-secondary" type="button" onclick="togglePassword()">
+              <i class="bi bi-eye" id="eyeIcon"></i>
+            </button>
+          </div>
+          {% for error in form.password.errors %}
+            <div class="text-danger small mt-1">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="mb-4 form-check">
+          {{ form.remember_me(class="form-check-input") }}
+          <label class="form-check-label text-muted small">
+            {{ form.remember_me.label.text }}
+          </label>
+        </div>
+
+        {{ form.submit(class="btn w-100 fw-bold",
+                       style="background:var(--nash-primary);color:#fff;") }}
+      </form>
+
+      <hr/>
+      <p class="text-center text-muted small mb-0">
+        Contact your IT Admin if you don't have an account or forgot your password.
+      </p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function togglePassword() {
+    const input    = document.getElementById('passwordInput');
+    const icon     = document.getElementById('eyeIcon');
+    const isHidden = input.type === 'password';
+    input.type     = isHidden ? 'text' : 'password';
+    icon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+  }
+</script>
+{% endblock %}

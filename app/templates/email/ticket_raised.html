@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8"/>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background:#f4f6f9; margin:0; padding:20px; }
+    .container { max-width:600px; margin:0 auto; background:#fff; border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(0,0,0,0.1); }
+    .header { background:#1a3c5e; color:#fff; padding:28px 32px; }
+    .header h2 { margin:0; font-size:1.3rem; }
+    .accent { color:#e87722; font-weight:700; }
+    .body { padding:32px; }
+    .ref-box { background:#f0f4f8; border-left:4px solid #e87722; padding:12px 16px; border-radius:4px; margin:16px 0; }
+    .ref-box .ref { font-size:1.4rem; font-weight:700; color:#1a3c5e; }
+    .priority-badge { display:inline-block; padding:3px 10px; border-radius:20px; font-size:0.8rem; font-weight:700; }
+    .priority-high   { background:#fde8e8; color:#c0392b; }
+    .priority-medium { background:#fef3e2; color:#d68910; }
+    .priority-low    { background:#eafaf1; color:#1e8449; }
+    table { width:100%; border-collapse:collapse; margin:16px 0; }
+    td { padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:0.9rem; }
+    td:first-child { color:#6c757d; width:40%; }
+    td:last-child { font-weight:600; }
+    .desc-box { background:#f8f9fa; border:1px solid #dee2e6; border-radius:8px; padding:16px; margin:16px 0; font-size:0.9rem; line-height:1.6; white-space:pre-wrap; }
+    .action-btn { display:inline-block; margin-top:16px; padding:12px 28px; background:#e87722; color:#fff; text-decoration:none; border-radius:8px; font-weight:700; font-size:0.95rem; }
+    .footer { background:#f4f6f9; padding:20px 32px; text-align:center; font-size:0.8rem; color:#6c757d; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <h2>⚡ Nash <span class="accent">Energy</span> IT Support</h2>
+    <p style="margin:4px 0 0; opacity:0.8; font-size:0.9rem;">New Support Ticket Raised — Action Required</p>
+  </div>
+
+  <div class="body">
+    <p>A new IT support ticket has been submitted and is awaiting assignment.</p>
+
+    <div class="ref-box">
+      <div style="font-size:0.8rem;color:#6c757d;">Ticket Reference</div>
+      <div class="ref">{{ ticket.ticket_ref }}</div>
+      <div style="margin-top:6px;">
+        {% set p = ticket.priority.value %}
+        <span class="priority-badge priority-{{ p | lower }}">{{ p }} Priority</span>
+      </div>
+    </div>
+
+    <table>
+      <tr><td>Category</td><td>{{ ticket.category.value if ticket.category else '—' }}</td></tr>
+      {% if ticket.sub_category %}
+      <tr><td>Sub-Category</td><td>{{ ticket.sub_category }}</td></tr>
+      {% endif %}
+      <tr><td>Asset ID</td><td>{{ ticket.asset_id or '—' }}</td></tr>
+      <tr><td>Submitted At</td><td>{{ ticket.submitted_at.strftime('%d %b %Y, %H:%M') }} UTC</td></tr>
+    </table>
+
+    <p style="margin-bottom:4px;"><strong>Raised By</strong></p>
+    <table>
+      <tr><td>Name</td><td>{{ ticket.submitter_name }}</td></tr>
+      <tr><td>Employee ID</td><td>{{ ticket.submitter_employee_id }}</td></tr>
+      <tr><td>Department</td><td>{{ ticket.submitter_department }}</td></tr>
+      <tr><td>Email</td><td>{{ ticket.submitter_email }}</td></tr>
+    </table>
+
+    <p><strong>Problem Description:</strong></p>
+    <div class="desc-box">{{ ticket.problem_description }}</div>
+
+    <p style="color:#6c757d; font-size:0.9rem; margin-top:16px;">
+      Please log in to the IT Support portal to assign this ticket to a staff member.
+    </p>
+  </div>
+
+  <div class="footer">
+    Nash Energy IT Support System &nbsp;·&nbsp; Internal Portal<br/>
+    This is an automated message — please do not reply to this email.
+  </div>
+
+</div>
+</body>
+</html>
