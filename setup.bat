@@ -1,9 +1,9 @@
 @echo off
 setlocal enabledelayedexpansion
-title Nash Energy IT — Production Setup
+title IT Support — Production Setup
 
 :: ================================================================
-::  Nash Energy IT Ticketing System — Production Setup Script
+::  IT Ticketing System — Production Setup Script
 ::  Run ONCE on the server as Administrator.
 ::
 ::  BEFORE RUNNING:
@@ -21,14 +21,14 @@ set PG_SUPERPASS=your_postgres_superuser_password_here
 
 :: New database credentials (will be created fresh)
 :: NOTE: Do not use @ or ! in DB_PASS — they break the PostgreSQL connection URL
-set DB_NAME=nash_energy_db
-set DB_USER=nash_db_user
-set DB_PASS=NashProd2025Secure
+set DB_NAME=demo_company_db
+set DB_USER=demo_db_user
+set DB_PASS=your-db-password-here
 set DB_PORT=5432
 
 :: Admin account that gets seeded into the app on first run
-set ADMIN_EMAIL=admin@nashenergy.com
-set ADMIN_PASS=Admin@NashIT2025!
+set ADMIN_EMAIL=admin@company.com
+set ADMIN_PASS=your-admin-password-here
 
 :: ================================================================
 ::  DO NOT EDIT BELOW THIS LINE
@@ -40,12 +40,12 @@ set VENV_DIR=%APP_DIR%\venv
 set VENV_PYTHON=%VENV_DIR%\Scripts\python.exe
 set VENV_PYTHONW=%VENV_DIR%\Scripts\pythonw.exe
 set VENV_PIP=%VENV_DIR%\Scripts\pip.exe
-set TASK_NAME=NashEnergyIT
+set TASK_NAME=DemoCompanyIT
 set APP_PORT=5008
 
 echo.
 echo  ==========================================
-echo   Nash Energy IT ^| Production Setup
+echo   IT Support ^| Production Setup
 echo  ==========================================
 echo.
 
@@ -156,11 +156,11 @@ echo.
 echo DATABASE_URL=postgresql://%DB_USER%:%DB_PASS%@localhost:%DB_PORT%/%DB_NAME%
 echo.
 echo # Microsoft Graph API ^(Email^)
-echo AZURE_TENANT_ID=388c9e20-2597-4b8d-bbbc-ebbf53bce879
-echo AZURE_CLIENT_ID=f1efdd2d-0504-4a3d-99cb-36e9f150ef7c
+echo AZURE_TENANT_ID=your-azure-tenant-id-here
+echo AZURE_CLIENT_ID=your-azure-client-id-here
 echo AZURE_CLIENT_SECRET=your-azure-client-secret-here
-echo MAIL_SENDER_EMAIL=ppc@nashenergy.in
-echo MAIL_SENDER_NAME=Nash Energy
+echo MAIL_SENDER_EMAIL=support@company.com
+echo MAIL_SENDER_NAME=Demo Company
 echo.
 echo UPLOAD_FOLDER=app/static/uploads
 echo MAX_CONTENT_LENGTH=5242880
@@ -181,8 +181,8 @@ echo  [OK] Directories ready
 echo.
 echo  [5b/6] Opening firewall port %APP_PORT%...
 echo  ------------------------------------------
-netsh advfirewall firewall delete rule name="Nash Energy IT - Port %APP_PORT%" >nul 2>&1
-netsh advfirewall firewall add rule name="Nash Energy IT - Port %APP_PORT%" dir=in action=allow protocol=TCP localport=%APP_PORT%
+netsh advfirewall firewall delete rule name="IT Support - Port %APP_PORT%" >nul 2>&1
+netsh advfirewall firewall add rule name="IT Support - Port %APP_PORT%" dir=in action=allow protocol=TCP localport=%APP_PORT%
 echo  [OK] Firewall rule added for port %APP_PORT%
 
 echo.

@@ -1,5 +1,5 @@
 """
-Email Notification Service for Nash Energy IT Ticketing System.
+Email Notification Service for IT Ticketing System.
 Uses Microsoft Graph API (OAuth2 client credentials) instead of SMTP.
 """
 
@@ -57,8 +57,8 @@ def _send_via_graph(subject: str, recipients: list[str],
     if not token:
         return False
 
-    sender_email = current_app.config.get('MAIL_SENDER_EMAIL', 'ppc@nashenergy.in')
-    sender_name  = current_app.config.get('MAIL_SENDER_NAME',  'Nash Energy')
+    sender_email = current_app.config.get('MAIL_SENDER_EMAIL', 'support@company.com')
+    sender_name  = current_app.config.get('MAIL_SENDER_NAME',  'Demo Company')
 
     payload = {
         'message': {
@@ -103,7 +103,7 @@ def _send_via_graph(subject: str, recipients: list[str],
 
 def send_ticket_raised_email(ticket: Ticket):
     """
-    Notify itadmin@nashenergy.in when a new ticket is raised.
+    Notify itadmin@company.com when a new ticket is raised.
     Fails silently — never crashes the app.
     """
     try:
@@ -111,8 +111,8 @@ def send_ticket_raised_email(ticket: Ticket):
         plain_body = _build_raised_plain_text_body(ticket)
 
         success = _send_via_graph(
-            subject    = f'[Nash Energy IT] New Ticket Raised — {ticket.ticket_ref} [{ticket.priority.value} Priority]',
-            recipients = ['itadmin@nashenergy.in'],
+            subject    = f'[IT Support] New Ticket Raised — {ticket.ticket_ref} [{ticket.priority.value} Priority]',
+            recipients = ['itadmin@company.com'],
             html_body  = html_body,
             plain_body = plain_body,
         )
@@ -120,7 +120,7 @@ def send_ticket_raised_email(ticket: Ticket):
         if success:
             current_app.logger.info(
                 f'[Email] New-ticket notification sent for {ticket.ticket_ref} '
-                f'to itadmin@nashenergy.in'
+                f'to itadmin@company.com'
             )
         else:
             current_app.logger.warning(
@@ -144,7 +144,7 @@ def send_ticket_solved_email(ticket: Ticket):
         plain_body = _build_solved_plain_text_body(ticket)
 
         success = _send_via_graph(
-            subject    = f'[Nash Energy IT] Your Ticket {ticket.ticket_ref} Has Been Resolved',
+            subject    = f'[IT Support] Your Ticket {ticket.ticket_ref} Has Been Resolved',
             recipients = [ticket.submitter_email],
             html_body  = html_body,
             plain_body = plain_body,
@@ -200,7 +200,7 @@ Problem Description:
 
 Please log in to the IT Support portal to assign and action this ticket.
 
-Nash Energy IT Support System
+IT Support Support System
     """.strip()
 
 
@@ -234,5 +234,5 @@ Resolution:
 If your issue persists, please submit a new ticket at the IT Support portal.
 
 Regards,
-Nash Energy IT Support Team
+IT Support Support Team
     """.strip()

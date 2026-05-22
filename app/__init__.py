@@ -1,5 +1,5 @@
 """
-Flask Application Factory for Nash Energy IT Ticketing System.
+Flask Application Factory for IT Ticketing System.
 """
 
 import os
@@ -31,7 +31,7 @@ def create_app(config_name: str = None) -> Flask:
         db.create_all()
         _seed_admin_user(app)
 
-    app.logger.info(f'Nash Energy IT Ticketing — startup complete [env={config_name}]')
+    app.logger.info(f'IT Support Ticketing — startup complete [env={config_name}]')
     return app
 
 
@@ -140,7 +140,7 @@ def _configure_logging(app):
     if not app.debug:
         os.makedirs('logs', exist_ok=True)
         file_handler = RotatingFileHandler(
-            'logs/nash_energy_tickets.log',
+            'logs/demo_company_tickets.log',
             maxBytes=10 * 1024 * 1024,
             backupCount=10
         )
@@ -157,7 +157,7 @@ def _configure_logging(app):
 def _seed_admin_user(app):
     from app.models import User, UserRole
 
-    admin_email    = os.environ.get('ADMIN_EMAIL',    'admin@nashenergy.com')
+    admin_email    = os.environ.get('ADMIN_EMAIL',    'admin@company.com')
     admin_password = os.environ.get('ADMIN_PASSWORD', 'Admin@1234!')
 
     existing_admin = User.query.filter_by(email=admin_email).first()

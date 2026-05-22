@@ -1,5 +1,5 @@
 """
-Basic model tests for Nash Energy IT Ticketing System.
+Basic model tests for IT Ticketing System.
 Run with: pytest tests/
 """
 
@@ -30,7 +30,7 @@ class TestUserModel:
             user = User(
                 full_name='Test User',
                 employee_id='TEST-001',
-                email='test@nashenergy.com',
+                email='test@company.com',
                 role=UserRole.STAFF
             )
             user.password = 'SecurePass123'
@@ -42,7 +42,7 @@ class TestUserModel:
             user = User(
                 full_name='Test User',
                 employee_id='TEST-002',
-                email='test2@nashenergy.com',
+                email='test2@company.com',
                 role=UserRole.STAFF
             )
             user.password = 'SecurePass123'
@@ -54,7 +54,7 @@ class TestUserModel:
             admin = User(
                 full_name='Admin User',
                 employee_id='ADMIN-001',
-                email='admin@nashenergy.com',
+                email='admin@company.com',
                 role=UserRole.ADMIN
             )
             admin.password = 'AdminPass123'
@@ -70,7 +70,7 @@ class TestTicketModel:
                 submitter_name='John Doe',
                 submitter_employee_id='EMP-001',
                 submitter_department='Engineering',
-                submitter_email='john@nashenergy.com',
+                submitter_email='john@company.com',
                 problem_description='My laptop screen is flickering constantly.',
                 priority=TicketPriority.HIGH,
                 status=TicketStatus.OPEN,
@@ -85,7 +85,7 @@ class TestTicketModel:
             admin = User(
                 full_name='Admin',
                 employee_id='ADMIN-001',
-                email='admin@nashenergy.com',
+                email='admin@company.com',
                 role=UserRole.ADMIN
             )
             admin.password = 'AdminPass123'
@@ -95,7 +95,7 @@ class TestTicketModel:
                 submitter_name='Jane Doe',
                 submitter_employee_id='EMP-002',
                 submitter_department='Finance',
-                submitter_email='jane@nashenergy.com',
+                submitter_email='jane@company.com',
                 problem_description='Cannot access the financial reporting tool.',
                 priority=TicketPriority.MEDIUM,
                 status=TicketStatus.OPEN,

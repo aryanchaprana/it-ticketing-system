@@ -23,7 +23,7 @@ logging.basicConfig(
 
 if __name__ == '__main__':
     os.makedirs('logs', exist_ok=True)
-    logging.info('Nash Energy IT — Waitress server starting on port 5008')
+    logging.info('IT Support — Waitress server starting on port 5008')
     serve(
         app,
         host='0.0.0.0',

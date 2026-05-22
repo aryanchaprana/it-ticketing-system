@@ -13,7 +13,7 @@ class Config:
 
     # --- Database ---
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
-        'postgresql://postgres:password@localhost:5432/nash_energy_tickets'
+        'postgresql://postgres:password@localhost:5432/demo_company_tickets'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,
@@ -29,8 +29,8 @@ class Config:
     AZURE_TENANT_ID     = os.environ.get('AZURE_TENANT_ID')
     AZURE_CLIENT_ID     = os.environ.get('AZURE_CLIENT_ID')
     AZURE_CLIENT_SECRET = os.environ.get('AZURE_CLIENT_SECRET')
-    MAIL_SENDER_EMAIL   = os.environ.get('MAIL_SENDER_EMAIL', 'ppc@nashenergy.in')
-    MAIL_SENDER_NAME    = os.environ.get('MAIL_SENDER_NAME', 'Nash Energy')
+    MAIL_SENDER_EMAIL   = os.environ.get('MAIL_SENDER_EMAIL', 'support@company.com')
+    MAIL_SENDER_NAME    = os.environ.get('MAIL_SENDER_NAME', 'Demo Company')
 
     # --- Session Security ---
     SESSION_COOKIE_HTTPONLY = True

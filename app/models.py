@@ -1,5 +1,5 @@
 """
-SQLAlchemy Database Models for Nash Energy IT Ticketing System.
+SQLAlchemy Database Models for IT Ticketing System.
 """
 
 import enum

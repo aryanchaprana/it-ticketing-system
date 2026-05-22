@@ -14,13 +14,13 @@ keepalive = 5
 graceful_timeout = 30
 
 # Logging
-accesslog = "/var/www/nash_energy_tickets/logs/gunicorn_access.log"
-errorlog  = "/var/www/nash_energy_tickets/logs/gunicorn_error.log"
+accesslog = "/var/www/demo_company_tickets/logs/gunicorn_access.log"
+errorlog  = "/var/www/demo_company_tickets/logs/gunicorn_error.log"
 loglevel  = "info"
 access_log_format = '%(h)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s"'
 
 # Process naming
-proc_name = "nash_energy_tickets"
+proc_name = "demo_company_tickets"
 
 # Security — drop privileges after binding
 user  = "nash_tickets"
