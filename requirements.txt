@@ -13,3 +13,4 @@ Pillow==11.1.0
 openpyxl==3.1.2
 requests==2.32.3
 waitress==3.0.0
+gunicorn==21.2.0

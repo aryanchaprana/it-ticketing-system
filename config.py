@@ -12,8 +12,12 @@ class Config:
     WTF_CSRF_ENABLED = True
 
     # --- Database ---
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+    # Render provides postgres:// URLs; SQLAlchemy requires postgresql://
+    _db_url = os.environ.get('DATABASE_URL') or \
         'postgresql://postgres:password@localhost:5432/demo_company_tickets'
+    if _db_url.startswith('postgres://'):
+        _db_url = _db_url.replace('postgres://', 'postgresql://', 1)
+    SQLALCHEMY_DATABASE_URI = _db_url
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_pre_ping': True,
@@ -52,13 +56,4 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_ENABLED = False
-    MAIL_SUPPRESS_SEND = True
-
-
-config = {
-    'development': DevelopmentConfig,
-    'production':  ProductionConfig,
-    'testing':     TestingConfig,
-    'default':     DevelopmentConfig,
-}
+    WTF_CSRF_E
