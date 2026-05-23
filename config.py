@@ -56,4 +56,13 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
-    WTF_CSRF_E
+    WTF_CSRF_ENABLED = False
+    MAIL_SUPPRESS_SEND = True
+
+
+config = {
+    'development': DevelopmentConfig,
+    'production':  ProductionConfig,
+    'testing':     TestingConfig,
+    'default':     DevelopmentConfig,
+}
