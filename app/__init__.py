@@ -163,11 +163,12 @@ def _seed_admin_user(app):
     existing_admin = User.query.filter_by(email=admin_email).first()
     if not existing_admin:
         admin = User(
-            full_name   = 'System Administrator',
-            employee_id = 'ADMIN-001',
-            email       = admin_email,
-            department  = 'IT',
-            role        = UserRole.ADMIN,
+            full_name            = 'System Administrator',
+            employee_id          = 'ADMIN-001',
+            email                = admin_email,
+            department           = 'IT',
+            role                 = UserRole.ADMIN,
+            must_change_password = False,
         )
         admin.password = admin_password
         db.session.add(admin)
