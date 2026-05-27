@@ -64,12 +64,6 @@ Automatic email alerts are sent when:
 
 ---
 
-## 📸 Screenshots
-
-> *(Add screenshots here — login page, employee dashboard, admin ticket view)*
-
----
-
 ## 🚀 Getting Started
 
 ```bash
